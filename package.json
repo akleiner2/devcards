@@ -2,6 +2,9 @@
   "name": "devcards",
   "version": "0.0.0",
   "main": "./index.js",
+  "bin": {
+    "devcards": "./bin/index.js"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "build:webpack": "NODE_ENV=production webpack --config webpack.config.prod.js",
@@ -39,6 +42,7 @@
   "dependencies": {
     "babel-loader": "^6.2.4",
     "css-loader": "^0.23.0",
+    "glob": "^7.0.5",
     "highlight.js": "^9.5.0",
     "history": "^1.17.0",
     "marked": "^0.3.5",
