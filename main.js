@@ -5,34 +5,18 @@ import { App, CardPage } from './lib/components/containers';
 import React, { Component } from 'react';
 
 import defcard from './lib/defcard';
-import atom from './lib/atom';
 
-const APP_STATE = atom({
-    currentNamespace: null,
-    cards: {}
-});
+const APP_STATE = {};
 
-function registerNamespace(namespace) {
-    APP_STATE.set(prevState => {
-        const state = {
-            currentNamespace: namespace,
-            cards: prevState.cards
-        };
-        state.cards[namespace] = [];
-        return state;
-    });
+function registerNamespace(ns) {
+    APP_STATE[ns] = {
+        cards: []
+    };
 }
 
-function registerCard(...args) {
-    APP_STATE.set(prevState => {
-        const cards = prevState.cards;
-        cards[prevState.currentNamespace].push({
-            func: () => defcard(...args)
-        });
-        return {
-            ...prevState,
-            cards
-        };
+function registerCard(ns, ...args) {
+    APP_STATE[ns].cards.push({
+        func: () => defcard(ns, ...args)
     });
 }
 
@@ -40,28 +24,24 @@ function connect(appState, Subject) {
     return class extends Component {
         constructor(props) {
             super(props);
-            this.state = appState.deref();
-            appState.listen(state => this.setState(state));
         }
         render() {
-            return <Subject {...this.state} {...this.props} />;
+            return <Subject cards={APP_STATE} {...this.props} />;
         }
     };
 }
 
-const ConnectedApp = connect(APP_STATE, App);
+function run() {
+  const ConnectedApp = connect(APP_STATE, App);
 
-window.__DEVCARDS__ = {
-    state: APP_STATE,
-    registerNamespace,
-    registerCard
-};
+  render(
+      <Router history={hashHistory}>
+          <Route component={ConnectedApp} path="/">
+              <IndexRoute component={CardPage} />
+              <Route component={CardPage} path="/:ns" />
+          </Route>
+      </Router>,
+      document.getElementById('devcards-root'));
+}
 
-render(
-    <Router history={hashHistory}>
-        <Route component={ConnectedApp} path="/">
-            <IndexRoute component={CardPage} />
-            <Route component={CardPage} path="/:ns" />
-        </Route>
-    </Router>,
-    document.getElementById('devcards-root'));
+export { registerNamespace, registerCard, run };

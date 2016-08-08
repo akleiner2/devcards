@@ -1,12 +1,4 @@
-if (!window.__DEVCARDS__) {
-    throw new Error(`__devcards__ not defined.
-Please check that you have included \`devcards/main\` before calling \`card\` or \`ns\`.`);
-}
-
-const {
-    registerCard,
-    registerNamespace
-} = window.__DEVCARDS__;
+import { registerCard, registerNamespace, run } from './main';
 
 export function doc(str) {
     return {
@@ -17,5 +9,6 @@ export function doc(str) {
 
 export {
     registerCard as card,
-    registerNamespace as ns
+    registerNamespace as ns,
+    run
 };
