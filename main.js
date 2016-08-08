@@ -57,6 +57,16 @@ window.__DEVCARDS__ = {
     registerCard
 };
 
+window.describe = (text, fn) => fn();
+window.it = (text, fn) => fn();
+window.expect = function (exp) {
+  return {
+    toBe(other) {
+      return exp === other;
+    },
+  };
+};
+
 render(
     <Router history={hashHistory}>
         <Route component={ConnectedApp} path="/">
