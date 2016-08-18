@@ -1,0 +1,4 @@
+{
+  "config": "./webpack.config.js",
+  "entry": "./docs/index.js"
+}

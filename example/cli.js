@@ -2,8 +2,8 @@
 const WebpackDevServer = require('webpack-dev-server');
 const webpack = require('webpack');
 const glob = require('glob');
-// const config = require('./webpack.config.js');
-const rc = glob.sync('.devcardsrc');
+const fs = require('fs');
+const rc = JSON.parse(fs.readFileSync(glob.sync('.devcardsrc')[0]));
 
 let config;
 let src;
@@ -13,12 +13,14 @@ const options = {};
 let isUsingDefaultConfig = true;
 
 if (!rc.length) {
+  // Default back to the standard config
   config = require('./webpack.config.js');
 }
 
-// Check if there's a `config` key
+let configPath;
+
 if (rc.config) {
-  const configPath = glob.sync(rc.config);
+  configPath = glob.sync(rc.config);
 
   if (!configPath.length) {
     throw new Error('Please specify a `config` key with a proper path. The `.devcardsrc` file should be proper JSON.');
@@ -38,22 +40,21 @@ if (rc.docFormat) {
 // Check if there's an entry point provided in the .devcardsrc file
 if (rc.entry) {
   // If there is, then go ahead, glob for that file, check if it exists, if no - throw a helpful error
-  const entries = glob.sync(rc.entry);
+  const entry = glob.sync(rc.entry)[0];
   if (!entry.length) {
     throw new Error('Unable to find entry point');
   } else {
-    options.entry = rc.entry;
+    options.entry = entry;
   }
 }
 
 if (!isUsingDefaultConfig) {
-  const AutomaticImportsPlugin = require('./AutomaticImportsPlugin');
-
   if (!config.plugins) {
     config.plugins = [];
   }
 
-  config.plugins.push(new AutomaticImportsPlugin({ options.docFormat }));
+  const AutomaticImportsPlugin = require('./AutomaticImportsPlugin');
+  config.plugins.push(new AutomaticImportsPlugin({ pattern: options.docFormat }));
   config.entry.push(options.entry);
 }
 
